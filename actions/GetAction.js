@@ -1,7 +1,6 @@
 import axios from 'axios';
 export const GET_POSTS_REQUEST = 'GET_POSTS_REQUEST'
 export const getPostsRequest = () => {
-  console.log("request");
   return {
     type: GET_POSTS_REQUEST
   }
@@ -9,7 +8,7 @@ export const getPostsRequest = () => {
 
 export const GET_POSTS_SUCCESS = 'GET_POSTS_SUCCESS'
 const getPostsSuccess = (json) => {  
-  console.log("request success");
+  console.log( `Recived ${json.length} articles`);
   return {
     type: GET_POSTS_SUCCESS,
     posts: json,
@@ -25,14 +24,19 @@ const getPostsFailure = (error) => {
 
 function getPosts () {
     return async function(dispatch, cited) {
-        if( dispatch )
+        
+        if( dispatch ){
             dispatch( getPostsRequest() );
-        var endPoint = `http://153.127.193.8:8000/api/citations/?cited=${cited}&format=json`;
-        console.log(endPoint);
+        }
+
+        var endPoint = `http://127.0.0.1:8000/api/citations/?cited=${cited}&format=json`;
+        console.log('Access to : ' + endPoint);
         try {
             const res = await axios.get( endPoint );
-            if (dispatch)
+            
+            if (dispatch){
                 dispatch(getPostsSuccess(res.data));
+            }
             return res.data;
         }catch(err){
             console.log(err);
@@ -43,3 +47,10 @@ function getPosts () {
 
 export {getPosts};
 
+export const CLICK_ARTICLE_ACTION = 'CLICK_ARTCILE_ACTION';
+export function onClickArticle( data ){
+  return {
+    type: CLICK_ARTICLE_ACTION,
+    data: data
+  }
+}

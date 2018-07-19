@@ -1,5 +1,5 @@
 import React from 'react';
-import indexStyles from '../pages/index.scss'
+//import indexStyles from '../pages/index.scss'
 import { getPosts }  from '../actions/GetAction';
 import { connect } from 'react-redux';
 import configureStore from '../store/configureStore';
@@ -14,12 +14,7 @@ class Tree extends React.Component {
         const isServer = !!req;
         const store = configureStore(applyMiddleware(thunk, logger), isServer);
         
-        //const ret = await getPosts()( this.props.dispatch); 
-        
-        console.log(ret);
-        console.log('getInitialProps tree')
-       
-        return { initTreeData: ret};
+        return { initTreeData: ret}, isServer;
         //return { initialState: store.getState(), isServer };
     }
 
@@ -35,6 +30,8 @@ class Tree extends React.Component {
     componentDidMount() {
         console.log('tree did mout');
         window.tree = this;
+        this.updateTreeObj();
+
     }
     componentDidUpdate() {
         console.log('tree did update');
@@ -80,8 +77,6 @@ class Tree extends React.Component {
             }
             var i = 0;    
             children.forEach(  ( child )=> {
-                //if(i> 1)
-                  //  return;
                 appendTreeData( treeEnd , child, target );
                 i++;
 
@@ -152,7 +147,6 @@ class Tree extends React.Component {
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(),
           links = tree.links(nodes);
-          console.log(nodes)
         // Normalize for fixed-depth.
         nodes.forEach(function(d) { d.y = d.depth * 180; });
         // Update the nodes…
@@ -226,6 +220,8 @@ class Tree extends React.Component {
         // Toggle children on click.
         function click(d) {
 
+          _self.props.onClickArticle( d );
+
           if (d.children) {
             
             d._children = d.children;
@@ -265,15 +261,38 @@ class Tree extends React.Component {
     render() {
         return (
         <div>
-             <style jsx global >{indexStyles}</style>
-            <svg ref={node => this.node = node}>
-            </svg>
-        </div>
-    );}
+             {/* <style jsx global >{indexStyles}</style> */}
+        <style jsx global>{`
+
+
+		.node {
+		  cursor: pointer;
+		}
+
+		.node circle {
+		  fill: #fff;
+		  stroke: steelblue;
+		  stroke-width: 1.5px;
+		}
+
+		.node text {
+		  font: 10px sans-serif;
+		}
+
+		.link {
+		  fill: none;
+		  stroke: #ccc;
+		  stroke-width: 1.5px;
+		}
+	`}</style>    
+      <svg ref={node => this.node = node}>
+      </svg>
+    </div>
+  );}
 }
 
-function mapStateToProps({ counter }) {
-  return { counter };
+function mapStateToProps({ state}) {
+  return { state };
 }
 
 //export default Tree;

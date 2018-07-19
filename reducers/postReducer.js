@@ -41,8 +41,3 @@ const posts = (state = [initalState], action) => {
 };
 
 export default posts;
-
-//export default createReducer({
-//  [increment]: (state) => ({ counter: state.counter + 1}),
-//  [decrement]: (state) => ({ counter: state.counter - 1}),
-//}, initialState);
