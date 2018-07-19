@@ -21,30 +21,33 @@ class Tree extends React.Component {
     constructor(props){
         super(props)
         this.createTree = this.createTree.bind(this)
-        console.log('tree constructor');
-        console.log(props);
         this.treeRoot = null;
         this.treeEnd = null;
     }
 
     componentDidMount() {
-        console.log('tree did mout');
         window.tree = this;
         this.updateTreeObj();
 
     }
     componentDidUpdate() {
-        console.log('tree did update');
         this.updateTreeObj();
-
     }
 
     updateTreeObj(){
         
         var posts = this.props.posts;
-    
-        if( posts === null || posts.length == 0){
+
+        if( posts === null || posts.length == 0 ){
+
             return false;
+        
+        }
+
+        if( this.treeEnd && (this.treeEnd.children || this.treeEnd._children)){
+
+          return false;
+
         }
         
         if( !this.treeRoot){
@@ -99,10 +102,22 @@ class Tree extends React.Component {
         return true;
     }
 
+    currentId(){
+
+      if( this.props.currentArticle && this.props.currentArticle.articleData ){
+
+        return this.props.currentArticle.articleData.cluster_id;
+
+      }
+
+      return null;
+
+    }
+
     createTree() {
         var node = this.node;
-        var margin = {top: 20, right: 120, bottom: 20, left: 120},
-            width = 960 - margin.right - margin.left,
+        var margin = {top: 20, right: 120, bottom: 20, left: 320},
+            width = 2000 - margin.right - margin.left,
             height = 800 - margin.top - margin.bottom;
         this.tree = d3.layout.tree()
             .size([height, width]);
@@ -134,52 +149,69 @@ class Tree extends React.Component {
 
     }
    
-   update(source) {
+    update(source) {
         var duration = 750;
         var diagonal = d3.svg.diagonal()
             .projection(function(d) { return [d.y, d.x]; });
         
-        const _self = this;
-        var root = this.root
-        var svg = this.svg;
-        var tree = this.tree;
-
         // Compute the new tree layout.
-        var nodes = tree.nodes(root).reverse(),
-          links = tree.links(nodes);
+        var nodes = this.tree.nodes( this.root ).reverse(),
+          links = this.tree.links(nodes);
         // Normalize for fixed-depth.
-        nodes.forEach(function(d) { d.y = d.depth * 180; });
+        nodes.forEach(function(d) { d.y = d.depth * 280; });
         // Update the nodes…
-        var node = svg.selectAll("g.node")
-          .data(nodes, function(d) { return d.id || (d.id = ++_self.id); });
+        var node = this.svg.selectAll("g.node")
+          .data(nodes, (d) => { return d.id || (d.id = ++this.id); });
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
           .attr("class", "node")
-          .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-          .on("click", click)
-          .on("mouseover", mouseOver)
-          .on("mouseout", mouseOut)
-          .on("dblclick", dblClick);
+          .attr("transform", (d)=> { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+          .on("click", this.click.bind(this))
+          .on("mouseover", this.mouseOver.bind(this))
+          .on("mouseout", this.mouseOut.bind(this))
+          .on("dblclick", this.dblClick.bind(this));
 
         nodeEnter.append("circle")
           .attr("r", 1e-6)
-          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+          .style("fill", (d) => {
+            if( this.currentId() == d.cluster_id){
+              return '#f00'
+            }
+            return d._children ? "lightsteelblue" : "#fff"; 
+          });
         nodeEnter.append("text")
           .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
           .attr("dy", ".35em")
           .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
           .attr("title", function(d) { return d.url })
-          .text(function(d) { return d.title; })
+          .text(function(d) { 
+            return d.title; 
+          })
           .style("fill-opacity", 1e-6);
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
           .duration(duration)
-          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+          .attr("transform", (d) => { 
+            return "translate(" + d.y + "," + (d.x) + ")"; 
+          });
+
+        nodeUpdate.select('text')  
+          .attr("x", function(d) {
+           return d.children  ? -10 : 10; })
+          .attr("dy", ".35em")
+          .attr("text-anchor", function(d) { return d.children ? "end" : "start"; });
+
         nodeUpdate.select("circle")
-          .attr("r", (d)=>{ return d.num_citations / 5.0} )
-          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+          .attr("r", (d)=>{ return Math.log( Math.max( d.num_citations * d.num_citations, 2.0) ) + 1.0 } )
+          .style("fill", (d) => {
+            if( this.props.currentArticle && this.currentId() === d.cluster_id){
+              return '#f00'
+            }
+            return d._children ? "lightsteelblue" : "#fff"; 
+          });
         nodeUpdate.select("text")
           .style("fill-opacity", 1);
+
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
           .duration(duration)
@@ -190,12 +222,12 @@ class Tree extends React.Component {
         nodeExit.select("text")
           .style("fill-opacity", 1e-6);
         // Update the links…
-        var link = svg.selectAll("path.link")
+        var link = this.svg.selectAll("path.link")
           .data(links, function(d) { return d.target.id; });
         // Enter any new links at the parent's previous position.
         link.enter().insert("path", "g")
           .attr("class", "link")
-          .attr("d", function(d) {
+          .attr("d", (d)=> {
             var o = {x: source.x0, y: source.y0};
             return diagonal({source: o, target: o});
           });
@@ -206,7 +238,7 @@ class Tree extends React.Component {
         // Transition exiting nodes to the parent's new position.
         link.exit().transition()
           .duration(duration)
-          .attr("d", function(d) {
+          .attr("d", (d)=> {
             var o = {x: source.x, y: source.y};
             return diagonal({source: o, target: o});
           })
@@ -216,46 +248,47 @@ class Tree extends React.Component {
             d.x0 = d.x;
             d.y0 = d.y;
         });
+    }
         
-        // Toggle children on click.
-        function click(d) {
+    // Toggle children on click.
+    click(d) {
 
-          _self.props.onClickArticle( d );
+        this.props.onClickArticle( d );
 
-          if (d.children) {
-            
-            d._children = d.children;
-            d.children = null;
+        if (d.children) {
           
-          } else if( d._children && d._children.length > 0) {
-              
-            d.children = d._children;
-            d._children = null;
+          d._children = d.children;
+          d.children = null;
+        
+        } else if( d._children && d._children.length > 0) {
             
-
-          } else {
+          d.children = d._children;
+          d._children = null;
           
-            getPosts()(_self.props.dispatch, d.cluster_id) 
 
-              _self.treeEnd = d; 
-            return;
-          }    
+        } else {
+        
+          getPosts()(this.props.dispatch, d.cluster_id) 
 
-          _self.update(d);
-        }
+          this.treeEnd = d; 
+          return;
+        }    
 
-        function dblClick(d, i){
-          console.log("dbclick");
-          if( d.url )
+        this.update(d);
+    }
+
+    dblClick(d, i){
+        if( d.url ){
             window.open( d.url );
         }
+    }
 
-        function mouseOver(d, i){
-        }
+    mouseOver(d, i){
+    
+    }
 
-        function mouseOut(d, i){
+    mouseOut(d, i){
 
-        }
     }
 
     render() {

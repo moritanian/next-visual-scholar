@@ -2,10 +2,15 @@ import {connect} from 'react-redux'
 import { onClickArticle }  from '../actions/GetAction';
 import Tree from '../components/Tree'
 
-const mapStateToProps = (state) => {    
+const mapStateToProps = (state) => {
+
 	const length = state.posts.length
-	const currentState = state.posts[length - 1]  // 一番新しいstateを取り出す
-	return { posts: currentState.items, first: 2 }  // 描画するのに必要なのはとりあえずitemsだけなのでitemsだけ返す
+	const currentState = state.posts[length - 1]  
+	
+	const articleLength = state.article.length
+	const currentArticle = state.article[articleLength - 1]  
+	return { posts: currentState.items, currentArticle: currentArticle }  
+
 }
 
 const GetPostList = connect(
