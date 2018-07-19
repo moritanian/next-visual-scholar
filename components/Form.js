@@ -1,14 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-//import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import ReactTable from "react-table";
+import 'react-table/react-table.css'
 
 class Form extends React.Component {
 
     displayData (){
 
     	if ( !this.props.article.articleData ){
-    		return null;
+    		return [{
+    			title: '-',
+    			url : '-',
+    			author: '-',
+    			year: '-',
+    			excerpt: '-'
+    		}];
     	}
 
     	return [ this.props.article.articleData ];
@@ -17,18 +23,40 @@ class Form extends React.Component {
 
 	render() {
 		
+		const columns = [{
+				Header: 'Title',
+				accessor: 'title',
+				width: 400
+			},
+			{
+				Header: 'URL',
+				accessor: 'url',
+			},
+			{
+				Header: 'Author',
+				accessor: 'author',
+			},
+			{
+				Header: 'Year',
+				accessor: 'year',
+				width: 70
+			}
+		];	
+
 		return (
 			<div>
-			<h2>Result</h2>
-			<BootstrapTable
-				data={this.displayData()}>
-				<TableHeaderColumn dataField="title" isKey dataAlign="right" dataSort>Title</TableHeaderColumn>
-				<TableHeaderColumn dataField="url"  dataAlign="right" dataSort>URL</TableHeaderColumn>
-				<TableHeaderColumn dataField="author"  dataAlign="right" dataSort>Author</TableHeaderColumn>
-				<TableHeaderColumn dataField="excerpt"  dataAlign="right" dataSort>Excerpt</TableHeaderColumn>
-			</BootstrapTable>
+			<link rel="stylesheet" href="https://unpkg.com/react-table@latest/react-table.css" />
 
-			{/*<button onClick={() => {console.log(this); getPosts()(this.props.dispatch, '14804188782990544648') }} > GetItem</button>*/}
+			<h2>Result</h2>
+			
+			 <ReactTable
+			 	showPageSizeOptions = {false}
+			 	showPagination={false}
+			 	defaultPageSize={1}
+    			data={this.displayData()}
+    			columns={columns}
+  			/>
+
 			</div>
 		);
 	}
@@ -36,10 +64,8 @@ class Form extends React.Component {
 
 function mapStateToProps( state ) {
 	const length = state.article.length
-	const currentState = state.article[length - 1]  // 一番新しいstateを取り出す
-	return { article: currentState }  // 描画するのに必要なのはとりあえずitemsだけなのでitemsだけ返す
-  //return  {article: state.article};
+	const currentState = state.article[length - 1]  
+	return { article: currentState }  
 }
 
 export default connect(mapStateToProps)(Form);
-//export default Form;

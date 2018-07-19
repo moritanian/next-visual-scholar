@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import baseStyles from 'styles/style.scss'
 
 export default props => (
   <div>
@@ -9,8 +8,5 @@ export default props => (
 
     {props.children}
 
-    <style jsx global>
-      {baseStyles}
-    </style>
   </div>
 )

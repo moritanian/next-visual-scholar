@@ -5,15 +5,17 @@
     "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
+    "@zeit/next-css": "^0.2.0",
     "axios": "^0.18.0",
     "bulma": "^0.6.2",
     "express": "^4.16.3",
-    "next": "^4.2.0",
+    "next": "^5.0.0",
     "react": "^16.2.0",
     "react-bootstrap-table": "^4.3.1",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.7",
     "react-server": "^0.8.1",
+    "react-table": "^6.8.6",
     "redux": "^4.0.0",
     "redux-act": "^1.7.4",
     "redux-logger": "^3.0.6",
