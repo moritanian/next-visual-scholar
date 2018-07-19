@@ -47,7 +47,7 @@ class Form extends React.Component {
 			<div>
 			<link rel="stylesheet" href="https://unpkg.com/react-table@latest/react-table.css" />
 
-			<h2>Result</h2>
+			<h2>Visual Scholar</h2>
 			
 			 <ReactTable
 			 	showPageSizeOptions = {false}

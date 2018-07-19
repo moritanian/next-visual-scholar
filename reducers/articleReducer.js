@@ -10,7 +10,6 @@ const initalState = {
 const article = (state = [initalState], action) => {    
   switch (action.type) {
     case CLICK_ARTICLE_ACTION:
-      console.log('update article action');
         return [
           ...state,
             {

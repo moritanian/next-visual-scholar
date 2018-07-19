@@ -29,7 +29,7 @@ function getPosts () {
             dispatch( getPostsRequest() );
         }
 
-        var endPoint = `http://127.0.0.1:8000/api/citations/?cited=${cited}&format=json`;
+        var endPoint = `http://153.127.193.8/api/citations/?cited=${cited}&format=json`;
         console.log('Access to : ' + endPoint);
         try {
             const res = await axios.get( endPoint );
